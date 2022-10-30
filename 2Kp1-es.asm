@@ -1,6 +1,6 @@
 section .data               
 ;Cambiar Nombre y Apellido por vuestros datos.
-developer db "_Nombre_ _Apellido1_",0
+developer db "_Rafael_ _Lopez_",0
 
 ;Constantes que también están definidas en C.
 DimMatrix    equ 4      
@@ -227,7 +227,40 @@ showNumberP1:
    push rbp
    mov  rbp, rsp
    
+   mov	eax, [number]
    
+   cmp	eax, 0xf423f
+   jle	showNumberP1_endif1
+   mov	eax, 0xf423f
+   
+   showNumberP1_endif1:
+   mov	ebx, 0x0
+   
+   showNumberP1_for:   
+   cmp	ebx, 0x6
+   jge showNumberP1_endfor
+   
+   mov DWORD [charac], 0x20
+   
+   cmp	eax, 0x0
+   jl	showNumberP1_endif2
+   
+   mov	edx, 0x0
+   mov	r8d, 0xa
+   div	r8d
+   
+   add	edx, 0x30
+   mov	[charac], edx
+   
+   showNumberP1_endif2:
+   call gotoxyP1
+   call printchP1
+   dec DWORD [colScreen]
+   
+   inc	ebx
+   jmp	showNumberP1_for
+   
+   showNumberP1_endfor:
    
    mov rsp, rbp
    pop rbp
