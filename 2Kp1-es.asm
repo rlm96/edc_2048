@@ -1,6 +1,6 @@
 section .data               
 ;Cambiar Nombre y Apellido por vuestros datos.
-developer db "_Nombre_ _Apellido1_",0
+developer db "_Rafael_ _Lopez_",0
 
 ;Constantes que también están definidas en C.
 DimMatrix    equ 4      
@@ -227,7 +227,40 @@ showNumberP1:
    push rbp
    mov  rbp, rsp
    
+   mov	eax, [number]
    
+   cmp	eax, 0xf423f
+   jle	showNumberP1_endif1
+   mov	eax, 0xf423f
+   
+   showNumberP1_endif1:
+   mov	ebx, 0x0
+   
+   showNumberP1_for:   
+   cmp	ebx, 0x6
+   jge showNumberP1_endfor
+   
+   mov DWORD [charac], 0x20
+   
+   cmp	eax, 0x0
+   jle	showNumberP1_endif2
+   
+   mov	edx, 0x0
+   mov	ecx, 0xa
+   div	ecx
+   
+   add	edx, 0x30
+   mov	[charac], edx
+   
+   showNumberP1_endif2:
+   call gotoxyP1
+   call printchP1
+   dec DWORD [colScreen]
+   
+   inc	ebx
+   jmp	showNumberP1_for
+   
+   showNumberP1_endfor:
    
    mov rsp, rbp
    pop rbp
@@ -261,7 +294,56 @@ updateBoardP1:
    push rbp
    mov  rbp, rsp
    
+   mov	r8d, 0xa
+   mov	r10d, 0x0
    
+   updateBoardP1_for1:
+   cmp	r10d, DimMatrix
+   jge	updateBoardP1_endfor1
+   
+   mov	r9d, 0x11
+   mov	r11d, 0x0
+   
+   updateBoardP1_for2:
+   cmp	r11d, DimMatrix
+   jge	updateBoardP1_endfor2
+   
+   mov	rsi, r11
+   mov	rax, DimMatrix
+   mul	r10
+   add	rsi, rax
+   movzx r13d, WORD[m+rsi*2]
+   mov	[number], r13d
+   
+   mov	[rowScreen], r8d
+   mov	[colScreen], r9d
+   
+   call showNumberP1
+   
+   add r9d, 0x9
+   
+   add	r11d, 0x1
+   jmp updateBoardP1_for2
+   
+   updateBoardP1_endfor2:
+   add r8d, 0x2
+   
+   add r10d, 0x1
+   jmp updateBoardP1_for1
+   
+   updateBoardP1_endfor1:
+   mov r12d, [score]
+   mov [number], r12d
+   
+   mov	DWORD [rowScreen], 0x12
+   mov	DWORD [colScreen], 0x1a
+   
+   call	showNumberP1
+   
+   mov	DWORD [rowScreen], 0x12
+   mov	DWORD [rowScreen], 0x1c
+   
+   call gotoxyP1
    
    mov rsp, rbp
    pop rbp
