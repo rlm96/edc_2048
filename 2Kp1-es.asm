@@ -368,7 +368,33 @@ copyMatrixP1:
    push rbp
    mov  rbp, rsp
    
+   mov	r8d, 0x0
    
+   copyMatrixP1_for1:
+   cmp	r8d, DimMatrix
+   jge	copyMatrixP1_endfor1
+   
+   mov r9d, 0x0
+   
+   copyMatrixP1_for2:
+   cmp	r9d, DimMatrix
+   jge	copyMatrixP1_endfor2
+   
+   mov	rsi, r9
+   mov	rax, DimMatrix
+   mul	r8
+   add	rsi, rax
+   movzx r10d, WORD[mRotated+rsi*2]
+   mov	[m+rsi*2], r10d
+      
+   inc	r9d
+   jmp	copyMatrixP1_for2
+   
+   copyMatrixP1_endfor2:   
+   inc	r8d
+   jmp copyMatrixP1_for1
+   
+   copyMatrixP1_endfor1:
    
    mov rsp, rbp
    pop rbp
