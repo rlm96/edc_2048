@@ -428,7 +428,42 @@ rotateMatrixRP1:
    push rbp
    mov  rbp, rsp
    
+   mov	r8d, 0x0
    
+   rotateMatrixRP1_for1:
+   cmp	r8d, DimMatrix
+   jge	rotateMatrixRP1_endfor1
+   
+   mov r9d, 0x0
+   
+   rotateMatrixRP1_for2:
+   cmp	r9d, DimMatrix
+   jge	rotateMatrixRP1_endfor2
+   
+   mov	rsi, r9
+   mov	rax, DimMatrix
+   mul	r8
+   add	rsi, rax
+   movzx r10d, WORD[m+rsi*2]
+   
+   mov	rax, DimMatrix
+   mul	r9
+   mov	rsi, rax
+   mov	r11, DimMatrix
+   dec	r11
+   sub	r11, r8
+   add	rsi, r11
+   mov	[mRotated+rsi*2], r10w
+   
+   inc	r9d
+   jmp	rotateMatrixRP1_for2
+   
+   rotateMatrixRP1_endfor2:   
+   inc	r8d
+   jmp rotateMatrixRP1_for1
+   
+   rotateMatrixRP1_endfor1:
+   call	copyMatrixP1
    
    mov rsp, rbp
    pop rbp
