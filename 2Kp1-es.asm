@@ -497,7 +497,88 @@ shiftNumbersRP1:
    push rbp
    mov  rbp, rsp
 
+   mov	r8d, DimMatrix
+   dec	r8d
    
+   shiftNumbersRP1_for1:
+   cmp	r8d, 0x0
+   jl	shiftNumbersRP1_endfor1
+   
+   mov	r9d, DimMatrix
+   dec	r9d
+   
+   shiftNumbersRP1_for2:
+   cmp	r9d, 0x0
+   jle	shiftNumbersRP1_endfor2
+   
+   mov	rsi, r9
+   mov	rax, DimMatrix
+   mul	r8
+   add	rsi, rax
+   movzx r10d, WORD[m+rsi*2]
+   
+   cmp	r10, 0
+   jne	shiftNumbersRP1_endif1
+   
+   mov	r10, r9
+   dec	r10
+   
+   shiftNumbersRP1_while:
+   cmp	r10, 0x0
+   jl	shiftNumbersRP1_endwhile
+   
+   mov	rsi, r10
+   mov	rax, DimMatrix
+   mul	r8
+   add	rsi, rax
+   movzx r11d, WORD[m+rsi*2]
+   
+   cmp	r11, 0x0
+   jne	shiftNumbersRP1_endwhile
+   
+   dec	r10
+   
+   jmp	shiftNumbersRP1_while
+   
+   shiftNumbersRP1_endwhile:
+   
+   cmp	r10, -1 ;0xffffffff
+   jne	shiftNumbersRP1_elseif2
+   
+   mov	r9, 0x0
+   
+   jmp	shiftNumbersRP1_endif2
+   
+   shiftNumbersRP1_elseif2:
+   mov	rsi, r10
+   mov	rax, DimMatrix
+   mul	r8
+   add	rsi, rax
+   movzx r11d, WORD[m+rsi*2]
+   
+   mov	r12, rsi
+   
+   mov	rsi, r9
+   mov	rax, DimMatrix
+   mul	r8
+   add	rsi, rax
+   mov	WORD[m+rsi*2], r11w
+   
+   mov	WORD[m+r12*2], 0x0
+   
+   mov	BYTE[state], '2'
+   
+   shiftNumbersRP1_endif2:   
+   shiftNumbersRP1_endif1:
+   dec	r9d
+   jmp	shiftNumbersRP1_for2
+   
+   shiftNumbersRP1_endfor2:
+   
+   dec	r8d
+   jmp	shiftNumbersRP1_for1
+   
+   shiftNumbersRP1_endfor1:
    
    mov rsp, rbp
    pop rbp
@@ -532,8 +613,72 @@ shiftNumbersRP1:
 addPairsRP1:
    push rbp
    mov  rbp, rsp
-
    
+   mov	r14w, 0x0
+
+   mov	r8d, DimMatrix
+   dec	r8d
+   
+   addPairsRP1_for1:
+   cmp	r8d, 0x0
+   jl	addPairsRP1_endfor1
+   
+   mov	r9d, DimMatrix
+   dec	r9d
+   
+   addPairsRP1_for2:
+   cmp	r9d, 0x0
+   jle	addPairsRP1_endfor2
+   
+   mov	rsi, r9
+   mov	rax, DimMatrix
+   mul	r8
+   add	rsi, rax
+   mov	r10, rsi
+   
+   mov	rsi, r9
+   dec	rsi
+   mov	rax, DimMatrix
+   mul	r8
+   add	rsi, rax
+   mov	r11, rsi
+   
+   movzx r12d, WORD[m+r10*2]
+   
+   cmp	r12, 0x0
+   je	addPairsRP1_endif1
+   
+   movzx r12d, WORD[m+r10*2]
+   movzx r13d, WORD[m+r11*2]
+   
+   cmp	r12, r13
+   jne	addPairsRP1_endif1
+   
+   mov	rax, 0x2
+   mul	WORD[m+r10*2]
+   mov	WORD[m+r10*2], ax
+   
+   mov	WORD[m+r11*2], 0x0
+   
+   add	r14w, WORD[m+r10*2]
+   
+   addPairsRP1_endif1:
+   dec	r9d
+   jmp	addPairsRP1_for2
+   
+   addPairsRP1_endfor2:
+   
+   dec	r8d
+   jmp	addPairsRP1_for1
+   
+   addPairsRP1_endfor1:
+   cmp	r14, 0x0
+   jle	addPairsRP1_endif2
+   add	DWORD[score], r14d
+   
+   mov	BYTE[state], '2'
+   
+   addPairsRP1_endif2:
    
    mov rsp, rbp
    pop rbp
