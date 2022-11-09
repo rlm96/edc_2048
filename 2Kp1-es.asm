@@ -614,7 +614,7 @@ addPairsRP1:
    push rbp
    mov  rbp, rsp
    
-   mov	r14w, 0x0
+   mov	r14, 0x0
 
    mov	r8d, DimMatrix
    dec	r8d
