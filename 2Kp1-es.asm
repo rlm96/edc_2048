@@ -229,35 +229,35 @@ showNumberP1:
    
    mov	eax, [number]
    
-   cmp	eax, 0xf423f
+   cmp	eax, 0xf423f ;if (n > 999999)
    jle	showNumberP1_endif1
-   mov	eax, 0xf423f
+   mov	eax, 0xf423f ;n = 999999
    
    showNumberP1_endif1:
-   mov	ebx, 0x0
+   mov	ebx, 0x0 ;i=0
    
    showNumberP1_for:   
-   cmp	ebx, 0x6
+   cmp	ebx, 0x6 ;i<6
    jge showNumberP1_endfor
    
-   mov DWORD [charac], 0x20
+   mov DWORD [charac], 0x20 ;charac = ' '
    
-   cmp	eax, 0x0
+   cmp	eax, 0x0 ;if (n > 0)
    jle	showNumberP1_endif2
    
    mov	edx, 0x0
    mov	ecx, 0xa
-   div	ecx
+   div	ecx ;Divide edx/ecx = edx/10. Cociente almacenado en eax (actua como variable n) y resto en edx
    
-   add	edx, 0x30
-   mov	[charac], edx
+   add	edx, 0x30 ;Ascii offset
+   mov	[charac], edx ;charac = edx
    
    showNumberP1_endif2:
-   call gotoxyP1
-   call printchP1
-   dec DWORD [colScreen]
+   call gotoxyP1 ;gotoxyP1_C()
+   call printchP1 ;printchP1_C()
+   dec DWORD [colScreen] ;colScreen--
    
-   inc	ebx
+   inc	ebx ;i++
    jmp	showNumberP1_for
    
    showNumberP1_endfor:
@@ -294,56 +294,58 @@ updateBoardP1:
    push rbp
    mov  rbp, rsp
    
-   mov	r8d, 0xa
-   mov	r10d, 0x0
+   mov	r8d, 0xa ;rowScreenAux = 10
+   mov	r10d, 0x0 ;i=0
    
    updateBoardP1_for1:
-   cmp	r10d, DimMatrix
+   cmp	r10d, DimMatrix ;i<DimMatrix
    jge	updateBoardP1_endfor1
    
-   mov	r9d, 0x11
-   mov	r11d, 0x0
+   mov	r9d, 0x11 ;colScreenAux = 17
+   mov	r11d, 0x0 ;j=0
    
    updateBoardP1_for2:
-   cmp	r11d, DimMatrix
+   cmp	r11d, DimMatrix ;j<DimMatrix
    jge	updateBoardP1_endfor2
    
-   mov	rsi, r11
-   mov	rax, DimMatrix
-   mul	r10
-   add	rsi, rax
-   movzx r13d, WORD[m+rsi*2]
-   mov	[number], r13d
+   ;number = m[i][j];
+   mov	rsi, r11 ;rsi = r11 = j
+   mov	rax, DimMatrix ;rax = DimMatrix
+   mul	r10 ;r10 = rax * r10 = r10*DimMatrix
+   add	rsi, rax ;rsi = j + r10*DimMatrix = j + i*DimMatrix
+   movzx r13d, WORD[m+rsi*2] ;r13 = direccion primer elemento de m + 2*(j + i*DimMatrix)
+   mov	[number], r13d ;number = r13
    
-   mov	[rowScreen], r8d
-   mov	[colScreen], r9d
+   mov	[rowScreen], r8d ;rowScreen = rowScreenAux = r8
+   mov	[colScreen], r9d ;colScreen = colScreenAux = r9
    
    call showNumberP1
    
-   add r9d, 0x9
+   add r9d, 0x9 ;colScreenAux = colScreenAux + 9
    
-   add	r11d, 0x1
+   add	r11d, 0x1 ;j++
    jmp updateBoardP1_for2
    
    updateBoardP1_endfor2:
-   add r8d, 0x2
+   add r8d, 0x2 ;rowScreenAux = rowScreenAux + 2
    
-   add r10d, 0x1
+   add r10d, 0x1 ;i++
    jmp updateBoardP1_for1
    
    updateBoardP1_endfor1:
+   ;number = score
    mov r12d, [score]
    mov [number], r12d
    
-   mov	DWORD [rowScreen], 0x12
-   mov	DWORD [colScreen], 0x1a
+   mov	DWORD [rowScreen], 0x12 ;rowScreen = 18
+   mov	DWORD [colScreen], 0x1a ;colScreen = 26
    
-   call	showNumberP1
+   call	showNumberP1 ;showNumberP1_C()
    
-   mov	DWORD [rowScreen], 0x12
-   mov	DWORD [rowScreen], 0x1c
+   mov	DWORD [rowScreen], 0x12 ;rowScreen = 18
+   mov	DWORD [rowScreen], 0x1c ;colScreen = 28
    
-   call gotoxyP1
+   call gotoxyP1 ;gotoxyP1_C()
    
    mov rsp, rbp
    pop rbp
@@ -368,30 +370,32 @@ copyMatrixP1:
    push rbp
    mov  rbp, rsp
    
-   mov	r8d, 0x0
+   mov	r8d, 0x0 ;i=0
    
    copyMatrixP1_for1:
-   cmp	r8d, DimMatrix
+   cmp	r8d, DimMatrix ;i<DimMatrix
    jge	copyMatrixP1_endfor1
    
-   mov r9d, 0x0
+   mov r9d, 0x0 ;j=0
    
    copyMatrixP1_for2:
-   cmp	r9d, DimMatrix
+   cmp	r9d, DimMatrix ;j<DimMatrix
    jge	copyMatrixP1_endfor2
    
-   mov	rsi, r9
+   ;Misma logica para acceder a mRotated[i][j] y m[i][j] que la utilizada en updateBoardP1
+   ;Se utiliza r10 para guardar el valor de mRotated y moverlo posteriormente a m
+   mov	rsi, r9 
    mov	rax, DimMatrix
    mul	r8
    add	rsi, rax
    movzx r10d, WORD[mRotated+rsi*2]
    mov	[m+rsi*2], r10d
       
-   inc	r9d
+   inc	r9d ;j++
    jmp	copyMatrixP1_for2
    
    copyMatrixP1_endfor2:   
-   inc	r8d
+   inc	r8d ;i++
    jmp copyMatrixP1_for1
    
    copyMatrixP1_endfor1:
@@ -428,42 +432,45 @@ rotateMatrixRP1:
    push rbp
    mov  rbp, rsp
    
-   mov	r8d, 0x0
+   mov	r8d, 0x0 ;i=0
    
    rotateMatrixRP1_for1:
-   cmp	r8d, DimMatrix
+   cmp	r8d, DimMatrix ;i<DimMatrix
    jge	rotateMatrixRP1_endfor1
    
-   mov r9d, 0x0
+   mov r9d, 0x0 ;j=0
    
    rotateMatrixRP1_for2:
-   cmp	r9d, DimMatrix
+   cmp	r9d, DimMatrix ;j<DimMatrix
    jge	rotateMatrixRP1_endfor2
    
+   ;Misma logica para acceder a m[i][j] que la utilizada en updateBoardP1
    mov	rsi, r9
    mov	rax, DimMatrix
    mul	r8
    add	rsi, rax
    movzx r10d, WORD[m+rsi*2]
    
+   ;Se utiliza practicamente la misma logica que anteriormente conmutando los registros que actuan
+   ;como i y j. Se calcula ademas [DimMatrix-1-i]
    mov	rax, DimMatrix
    mul	r9
    mov	rsi, rax
    mov	r11, DimMatrix
-   dec	r11
-   sub	r11, r8
-   add	rsi, r11
-   mov	[mRotated+rsi*2], r10w
+   dec	r11 ;r11 = DimMatrix - 1
+   sub	r11, r8 ;r11 = DimMatrix - 1 - i
+   add	rsi, r11 ;rsi = r11
+   mov	[mRotated+rsi*2], r10w ;r13 = direccion primer elemento de mRotated + 2*(DimMatrix - 1 - i + j*DimMatrix)
    
-   inc	r9d
+   inc	r9d ;j++
    jmp	rotateMatrixRP1_for2
    
    rotateMatrixRP1_endfor2:   
-   inc	r8d
+   inc	r8d ;i++
    jmp rotateMatrixRP1_for1
    
    rotateMatrixRP1_endfor1:
-   call	copyMatrixP1
+   call	copyMatrixP1 ;copyMatrixP1_C()
    
    mov rsp, rbp
    pop rbp
@@ -497,85 +504,93 @@ shiftNumbersRP1:
    push rbp
    mov  rbp, rsp
 
+   ;i=DimMatrix-1
    mov	r8d, DimMatrix
    dec	r8d
    
    shiftNumbersRP1_for1:
-   cmp	r8d, 0x0
+   cmp	r8d, 0x0 ;i>=0
    jl	shiftNumbersRP1_endfor1
    
+   ;j=DimMatrix-1
    mov	r9d, DimMatrix
    dec	r9d
    
    shiftNumbersRP1_for2:
-   cmp	r9d, 0x0
+   cmp	r9d, 0x0 ;j>0
    jle	shiftNumbersRP1_endfor2
    
+   ;Misma logica para acceder a m[i][j] que la utilizada en updateBoardP1
    mov	rsi, r9
    mov	rax, DimMatrix
    mul	r8
    add	rsi, rax
    movzx r10d, WORD[m+rsi*2]
    
-   cmp	r10, 0
+   cmp	r10, 0 ;if (m[i][j] == 0)
    jne	shiftNumbersRP1_endif1
    
+   ;k = j-1
    mov	r10, r9
    dec	r10
    
    shiftNumbersRP1_while:
-   cmp	r10, 0x0
+   cmp	r10, 0x0 ;k>=0
    jl	shiftNumbersRP1_endwhile
    
+   ;Misma logica para acceder a m[i][k] que la utilizada en updateBoardP1 (conmutando j por k)
    mov	rsi, r10
    mov	rax, DimMatrix
    mul	r8
    add	rsi, rax
    movzx r11d, WORD[m+rsi*2]
    
-   cmp	r11, 0x0
+   cmp	r11, 0x0 ;m[i][k]==0
    jne	shiftNumbersRP1_endwhile
    
-   dec	r10
+   dec	r10 ;k--
    
    jmp	shiftNumbersRP1_while
    
    shiftNumbersRP1_endwhile:
    
+   ;k==-1
    cmp	r10, -1 ;0xffffffff
    jne	shiftNumbersRP1_elseif2
    
-   mov	r9, 0x0
+   mov	r9, 0x0 ;j=0
    
    jmp	shiftNumbersRP1_endif2
    
    shiftNumbersRP1_elseif2:
+   ;r11 = m[i][k]
    mov	rsi, r10
    mov	rax, DimMatrix
    mul	r8
    add	rsi, rax
    movzx r11d, WORD[m+rsi*2]
    
-   mov	r12, rsi
+   mov	r12, rsi ;Se guarda en r12 el valor de rsi para poder tener acceso facilmente a m[i][k]
    
+   ;m[i][j] = r11 = m[i][k]
    mov	rsi, r9
    mov	rax, DimMatrix
    mul	r8
    add	rsi, rax
    mov	WORD[m+rsi*2], r11w
    
-   mov	WORD[m+r12*2], 0x0
+   mov	WORD[m+r12*2], 0x0 ;m[i][k]= 0
    
-   mov	BYTE[state], '2'
+   mov	BYTE[state], '2' ;state='2'
    
    shiftNumbersRP1_endif2:   
    shiftNumbersRP1_endif1:
-   dec	r9d
+   dec	r9d ;j--
    jmp	shiftNumbersRP1_for2
    
    shiftNumbersRP1_endfor2:
    
-   dec	r8d
+   dec	r8d ;i--
    jmp	shiftNumbersRP1_for1
    
    shiftNumbersRP1_endfor1:
@@ -616,67 +631,71 @@ addPairsRP1:
    
    mov	r14, 0x0
 
+   ;i=DimMatrix-1
    mov	r8d, DimMatrix
    dec	r8d
    
    addPairsRP1_for1:
-   cmp	r8d, 0x0
+   cmp	r8d, 0x0 ;i>=0
    jl	addPairsRP1_endfor1
    
+   ;j=DimMatrix-1
    mov	r9d, DimMatrix
    dec	r9d
    
    addPairsRP1_for2:
-   cmp	r9d, 0x0
+   cmp	r9d, 0x0 ;j>0
    jle	addPairsRP1_endfor2
    
    mov	rsi, r9
    mov	rax, DimMatrix
    mul	r8
    add	rsi, rax
-   mov	r10, rsi
+   mov	r10, rsi ;Se guarda en r10 el valor de rsi para poder tener acceso facilmente a m[i][j]
    
    mov	rsi, r9
    dec	rsi
    mov	rax, DimMatrix
    mul	r8
    add	rsi, rax
-   mov	r11, rsi
+   mov	r11, rsi ;Se guarda en r10 el valor de rsi para poder tener acceso facilmente a m[i][j-1]
    
    movzx r12d, WORD[m+r10*2]
    
-   cmp	r12, 0x0
+   cmp	r12, 0x0 ;(m[i][j]!=0)
    je	addPairsRP1_endif1
    
-   movzx r12d, WORD[m+r10*2]
-   movzx r13d, WORD[m+r11*2]
+   movzx r12d, WORD[m+r10*2] ;r12 = m[i][j]
+   movzx r13d, WORD[m+r11*2] ;r13 = m[i][j-1]
    
-   cmp	r12, r13
+   cmp	r12, r13 ;(m[i][j]==m[i][j-1])
    jne	addPairsRP1_endif1
    
+   ;m[i][j] = m[i][j]*2
    mov	rax, 0x2
    mul	WORD[m+r10*2]
    mov	WORD[m+r10*2], ax
    
+   ;m[i][j-1] = 0
    mov	WORD[m+r11*2], 0x0
    
+   ;p = p + m[i][j]
    add	r14w, WORD[m+r10*2]
    
    addPairsRP1_endif1:
-   dec	r9d
+   dec	r9d ;j--
    jmp	addPairsRP1_for2
    
    addPairsRP1_endfor2:
-   
-   dec	r8d
+   dec	r8d ;i--
    jmp	addPairsRP1_for1
    
    addPairsRP1_endfor1:
-   cmp	r14, 0x0
+   cmp	r14, 0x0 ;if (p > 0)
    jle	addPairsRP1_endif2
-   add	DWORD[score], r14d
+   add	DWORD[score], r14d ;score = score + p;
    
-   mov	BYTE[state], '2'
+   mov	BYTE[state], '2' ;state = '2'
    
    addPairsRP1_endif2:
    
